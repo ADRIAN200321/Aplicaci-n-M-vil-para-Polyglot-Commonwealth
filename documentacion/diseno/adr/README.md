@@ -12,6 +12,7 @@ Cada decisión técnica importante del proyecto se documenta en un archivo corto
 | [0004](0004-modelo-multi-idioma-y-modulos.md) | Modelo multi-idioma y módulos por contexto | Propuesta |
 | [0005](0005-clases-en-vivo-con-proveedor-externo.md) | Clases en vivo con proveedor externo | Propuesta |
 | [0006](0006-interfaz-compose-multiplatform-android-e-ios.md) | Interfaz con Compose Multiplatform, Android e iOS desde el inicio | Propuesta |
+| [0007](0007-autenticacion-jwt-y-registro-por-etapas.md) | Autenticación con JWT y registro por etapas | Propuesta |
 
 > Los ADR 0004 y 0005 asumen la visión ampliada del proyecto (plataforma de aprendizaje con clases en vivo), que aún no está en el SRS. Antes de construir hay que actualizar el SRS a la versión 2.0.
 

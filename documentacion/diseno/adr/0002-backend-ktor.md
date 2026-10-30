@@ -42,4 +42,4 @@ Del sitio público actual se observa que está en Hostinger (HTML y JavaScript e
   - ¿Qué motor de base de datos usa y se puede conectar desde fuera del hosting?
   - ¿`procesar_inscripcion.php` guarda en la base de datos o solo arma el mensaje de WhatsApp?
   - ¿El plan de Hostinger es compartido o un VPS?
-- ¿Cómo se autentican los usuarios: sesión, JWT u otro mecanismo?
+- Autenticación: propuesta en el ADR-0007 (JWT con token de refresco).
