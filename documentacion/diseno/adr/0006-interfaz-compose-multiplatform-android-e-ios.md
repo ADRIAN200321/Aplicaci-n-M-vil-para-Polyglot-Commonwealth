@@ -36,5 +36,5 @@ El equipo desarrolla en Windows. Un integrante usa Android y dos usan iPhone. Ho
 ## Preguntas abiertas
 
 - ¿Hay acceso a un Mac, propio o prestado, para depurar problemas de iOS que la CI no muestre?
-- ¿Quién paga la cuenta de Apple Developer: la academia o el equipo?
+- Cuenta de Apple Developer: se difiere hasta que haga falta probar en iPhone reales o publicar, y la asume la academia a su nombre (ADR-0008).
 - ¿Los minutos de CI en macOS son gratuitos para este repositorio? Hay que verificarlo, porque puede depender de si el repo es público o privado.

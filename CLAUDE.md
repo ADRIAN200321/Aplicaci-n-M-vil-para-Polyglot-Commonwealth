@@ -11,8 +11,9 @@ Las decisiones de arquitectura viven en `documentacion/diseno/adr/`. Mientras un
 - Clases en vivo con proveedor externo (ADR-0005).
 - Interfaz con Compose Multiplatform, Android e iOS desde el inicio (ADR-0006). El código común no usa APIs de Android ni de iOS.
 - Autenticación con JWT y token de refresco, Argon2id y registro por etapas (ADR-0007).
+- Docker, Exposed, Flyway y SQLDelight, con despliegue por fases para gastar poco al inicio (ADR-0008).
 
-**No elijas por tu cuenta** lo que los ADR dejan abierto: inyección de dependencias, biblioteca de acceso a datos, servicio de correo, proveedor de video. Si el trabajo lo necesita, propón un ADR nuevo y pregunta.
+**No elijas por tu cuenta** lo que los ADR dejan abierto: inyección de dependencias, servicio de correo, proveedor de video, proveedor del servidor. Si el trabajo lo necesita, propón un ADR nuevo y pregunta.
 
 ## Arquitectura
 
