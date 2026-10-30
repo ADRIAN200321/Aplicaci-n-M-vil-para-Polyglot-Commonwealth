@@ -23,7 +23,7 @@ Esto aplica la inversión de dependencias: cambiar de proveedor implica escribir
 El proveedor concreto se decide más adelante con estos criterios:
 
 - Costo por minuto o por participante y existencia de plan gratuito para desarrollo.
-- SDK para Android y compatibilidad con Kotlin Multiplatform.
+- SDK para Android **e iOS** y compatibilidad con Kotlin Multiplatform. Es obligatorio, porque la app sale en ambos sistemas (ADR-0006).
 - Grabación, con control de quién la ve y por cuánto tiempo.
 - Tratamiento y ubicación de los datos de menores.
 
