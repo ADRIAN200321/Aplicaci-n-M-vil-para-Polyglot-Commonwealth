@@ -70,7 +70,7 @@ Las reglas de negocio viven en `domain`. Ejemplo: "un menor exige representante 
 
 ## Git y colaboración
 
-- Nunca se trabaja directo en `main`. Una rama por tarea: `feature/<nombre>`, `fix/<nombre>`, `docs/<nombre>`.
+- Nunca se trabaja directo en `main`. Una rama por tarea, con el formato `<Nombre>/<Iniciales>_<tarea>`. Ejemplo: `Santiago/SG_esqueleto-modulos`. La tarea va en minúsculas y con guiones.
 - Commits con **Conventional Commits** en español: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`.
 - Commits pequeños, uno por cambio lógico.
 - **Prohibido** agregar `Co-Authored-By` de Claude o de cualquier IA, y cualquier línea de atribución como "Generated with Claude Code", en commits, PR y documentos. La autoría es del equipo humano.
