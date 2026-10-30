@@ -12,8 +12,9 @@ Las decisiones de arquitectura viven en `documentacion/diseno/adr/`. Mientras un
 - Interfaz con Compose Multiplatform, Android e iOS desde el inicio (ADR-0006). El código común no usa APIs de Android ni de iOS.
 - Autenticación con JWT y token de refresco, Argon2id y registro por etapas (ADR-0007).
 - Docker, Exposed, Flyway y SQLDelight, con despliegue por fases para gastar poco al inicio (ADR-0008).
+- Koin, MVVM con flujo unidireccional y CI en GitHub Actions (ADR-0009).
 
-**No elijas por tu cuenta** lo que los ADR dejan abierto: inyección de dependencias, servicio de correo, proveedor de video, proveedor del servidor. Si el trabajo lo necesita, propón un ADR nuevo y pregunta.
+**No elijas por tu cuenta** lo que los ADR dejan abierto: servicio de correo, proveedor de video, proveedor del servidor. Si el trabajo lo necesita, propón un ADR nuevo y pregunta.
 
 ## Arquitectura
 
@@ -28,6 +29,8 @@ presentation → domain ← data
 - **`presentation`**: pantallas y ViewModels. Solo habla con casos de uso, nunca con repositorios ni con `data`.
 - Un módulo no depende de las capas internas de otro. Se comunican por interfaces públicas del dominio.
 - Dependencias siempre hacia el dominio. Si necesitas lo contrario, falta una interfaz.
+- Inyección por **constructor**. Koin se usa solo en el punto de arranque (`app`); ninguna clase llama al contenedor (`get()`, `inject()`) desde dentro.
+- Cada pantalla tiene un `UiState` inmutable y recibe las acciones del usuario con `onAction(...)` (jerarquía `sealed`). Los efectos de una sola vez salen por un `Flow` aparte.
 
 ## Principios SOLID en este proyecto
 

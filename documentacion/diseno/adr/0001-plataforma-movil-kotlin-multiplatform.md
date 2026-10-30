@@ -28,5 +28,5 @@ La aplicación móvil se construye con **Kotlin Multiplatform (KMP)**. La lógic
 
 ## Preguntas abiertas
 
-- ¿Qué biblioteca de inyección de dependencias se usa (por ejemplo, Koin)?
+- Inyección de dependencias, patrón de presentación e integración continua: propuestos en el ADR-0009.
 - Interfaz e iOS: propuestas en el ADR-0006 (Compose Multiplatform, Android e iOS desde el inicio).
