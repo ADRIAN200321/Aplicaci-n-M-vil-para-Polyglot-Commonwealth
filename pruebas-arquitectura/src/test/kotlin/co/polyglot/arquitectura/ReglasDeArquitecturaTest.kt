@@ -16,9 +16,10 @@ class ReglasDeArquitecturaTest {
             .files
             .filter { esCodigoDeProduccion(it.rutaNormalizada()) }
 
-    private val codigoDeDominio = archivosDeProduccion.deCapa("/matricula/domain/")
-    private val codigoDeDatos = archivosDeProduccion.deCapa("/matricula/data/")
-    private val codigoDePresentacion = archivosDeProduccion.deCapa("/matricula/presentation/")
+    // Las reglas valen para todo módulo de contexto (matricula, catalogo...) sin listarlos uno por uno.
+    private val codigoDeDominio = archivosDeProduccion.deCapa("domain")
+    private val codigoDeDatos = archivosDeProduccion.deCapa("data")
+    private val codigoDePresentacion = archivosDeProduccion.deCapa("presentation")
 
     @Test
     fun `las pruebas encuentran codigo de cada capa para revisar`() {
@@ -26,6 +27,32 @@ class ReglasDeArquitecturaTest {
         assertTrue(codigoDeDominio.isNotEmpty(), "No se encontró código de dominio")
         assertTrue(codigoDeDatos.isNotEmpty(), "No se encontró código de datos")
         assertTrue(codigoDePresentacion.isNotEmpty(), "No se encontró código de presentación")
+    }
+
+    @Test
+    fun `cada contexto tiene sus tres capas`() {
+        val contextosPorCapa = listOf(codigoDeDominio, codigoDeDatos, codigoDePresentacion).map { it.contextos() }
+
+        assertTrue(contextosPorCapa.distinct().size == 1, "Los contextos por capa no coinciden: $contextosPorCapa")
+        assertTrue(contextosPorCapa.first().size >= 2, "Se esperaban al menos matricula y catalogo")
+    }
+
+    @Test
+    fun `un contexto solo conoce el dominio de otro, nunca sus datos ni su presentacion`() {
+        val infractores =
+            (codigoDeDominio + codigoDeDatos + codigoDePresentacion)
+                .filter { archivo ->
+                    val propio = archivo.contexto()
+                    archivo.imports.any { import ->
+                        IMPORT_DE_CAPA_INTERNA
+                            .find(import.name)
+                            ?.groupValues
+                            ?.get(1)
+                            ?.let { it != propio } == true
+                    }
+                }.rutas()
+
+        assertTrue(infractores.isEmpty(), "Un contexto usa capas internas de otro en: $infractores")
     }
 
     @Test
@@ -38,14 +65,19 @@ class ReglasDeArquitecturaTest {
     @Test
     fun `la presentacion no conoce la capa de datos ni la red`() {
         val infractores =
-            (codigoDePresentacion.importan("co.polyglot.matricula.data") + codigoDePresentacion.importan("io.ktor.")).rutas()
+            codigoDePresentacion
+                .filter { archivo -> archivo.imports.any { PAQUETE_DE_DATOS.containsMatchIn(it.name) || it.name.startsWith("io.ktor.") } }
+                .rutas()
 
         assertTrue(infractores.isEmpty(), "La presentación importa datos o red en: $infractores")
     }
 
     @Test
     fun `la capa de datos no conoce la presentacion`() {
-        val infractores = codigoDeDatos.importan("co.polyglot.matricula.presentation").rutas()
+        val infractores =
+            codigoDeDatos
+                .filter { archivo -> archivo.imports.any { PAQUETE_DE_PRESENTACION.containsMatchIn(it.name) } }
+                .rutas()
 
         assertTrue(infractores.isEmpty(), "Datos importa presentación en: $infractores")
     }
@@ -116,6 +148,12 @@ class ReglasDeArquitecturaTest {
 
         val CONJUNTO_DE_PRUEBAS = Regex("/src/[^/]*[tT]est/")
 
+        val PAQUETE_DE_DATOS = Regex("""^co\.polyglot\.[a-z0-9_]+\.data(\.|$)""")
+        val PAQUETE_DE_PRESENTACION = Regex("""^co\.polyglot\.[a-z0-9_]+\.presentation(\.|$)""")
+
+        /** Captura el contexto dueño de un import a `data` o `presentation`: `co.polyglot.<contexto>.data...`. */
+        val IMPORT_DE_CAPA_INTERNA = Regex("""^co\.polyglot\.([a-z0-9_]+)\.(?:data|presentation)(?:\.|$)""")
+
         fun esCodigoDeProduccion(ruta: String) =
             ruta.contains("/src/") &&
                 !ruta.contains("/build/") &&
@@ -124,9 +162,22 @@ class ReglasDeArquitecturaTest {
     }
 }
 
+/** Ruta de un módulo de contexto: `/<contexto>/<capa>/src/`. */
+private val MODULO_DE_CONTEXTO = Regex("""/([^/]+)/(domain|data|presentation)/src/""")
+
 private fun KoFileDeclaration.rutaNormalizada() = path.replace('\\', '/')
 
-private fun List<KoFileDeclaration>.deCapa(carpeta: String) = filter { it.rutaNormalizada().contains(carpeta) }
+private fun List<KoFileDeclaration>.deCapa(capa: String) = filter { it.moduloDeContexto()?.second == capa }
+
+private fun KoFileDeclaration.moduloDeContexto() =
+    MODULO_DE_CONTEXTO
+        .find(rutaNormalizada())
+        ?.destructured
+        ?.let { (contexto, capa) -> contexto to capa }
+
+private fun KoFileDeclaration.contexto() = moduloDeContexto()?.first
+
+private fun List<KoFileDeclaration>.contextos() = mapNotNull { it.contexto() }.toSet()
 
 private fun List<KoFileDeclaration>.importan(prefijo: String) = filter { archivo -> archivo.imports.any { it.name.startsWith(prefijo) } }
 
