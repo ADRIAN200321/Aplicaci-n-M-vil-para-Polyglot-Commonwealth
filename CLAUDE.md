@@ -100,4 +100,17 @@ Las reglas de negocio viven en `domain`. Ejemplo: "un menor exige representante 
 
 ## Comandos
 
-Aún no hay proyecto Gradle ni scripts de compilación. Esta sección se completa cuando se cree el esqueleto de módulos.
+Requieren JDK 17 o superior (`JAVA_HOME`) y el SDK de Android (`local.properties` con `sdk.dir`, archivo que no se sube). Usa siempre `./gradlew`.
+
+```bash
+./gradlew ktlintCheck                      # formato (ktlintFormat lo corrige)
+./gradlew :matricula:domain:jvmTest        # pruebas de un módulo (también :data, :presentation y :app:jvmTest)
+./gradlew :pruebas-arquitectura:test       # regla de dependencias (Konsist)
+./gradlew :servidor:test                   # backend; las de PostgreSQL necesitan Docker
+./gradlew :androidApp:assembleDebug        # compila la app de Android
+./gradlew :app:linkDebugFrameworkIosSimulatorArm64   # framework de iOS (solo en macOS)
+```
+
+Servidor local: `docker compose up -d` (PostgreSQL, usa `.env`) y luego `./gradlew :servidor:run` con `DATABASE_URL`, `DATABASE_USER` y `DATABASE_PASSWORD` definidas. La app de Android apunta al servidor con `-PurlApi=http://10.0.2.2:8080` (valor por defecto en el emulador).
+
+Si Gradle se queda sin memoria, ejecuta con `--max-workers=2`.

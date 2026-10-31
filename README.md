@@ -93,7 +93,41 @@ Aplicaci-n-M-vil-para-Polyglot-Commonwealth/
 
 ## Cómo ejecutar el proyecto
 
-Las instrucciones de instalación y ejecución se agregarán a partir de la Semana 4, cuando existan la base de datos y el backend.
+Ya existe un **esqueleto andante** (ADR-0010): la ficha de inscripción de punta a punta, desde la pantalla hasta PostgreSQL.
+
+**Requisitos:** JDK 17 o superior, Docker, y el SDK de Android (Android Studio) para la app. Para iOS se necesita un Mac.
+
+1. **Base de datos.** Copia `.env.example` a `.env`, cambia la contraseña y ejecuta:
+
+   ```bash
+   docker compose up -d
+   ```
+
+2. **Servidor.** Define las variables de entorno (`DATABASE_URL`, `DATABASE_USER`, `DATABASE_PASSWORD`, opcionalmente `PORT`) y ejecuta:
+
+   ```bash
+   ./gradlew :servidor:run
+   ```
+
+   Las migraciones de Flyway se aplican al arrancar. Comprueba que responde en `http://localhost:8080/salud`.
+
+3. **App de Android.** Crea `local.properties` con `sdk.dir=<ruta del SDK>` y ejecuta:
+
+   ```bash
+   ./gradlew :androidApp:installDebug
+   ```
+
+   En el emulador, el servidor de tu computador es `http://10.0.2.2:8080` (valor por defecto). En un celular físico usa `-PurlApi=http://<IP-de-tu-PC>:8080`.
+
+4. **Pruebas y calidad:**
+
+   ```bash
+   ./gradlew ktlintCheck :matricula:domain:jvmTest :pruebas-arquitectura:test :servidor:test
+   ```
+
+   Las pruebas de PostgreSQL usan Testcontainers y se omiten si Docker no está disponible. La lista completa de comandos está en [CLAUDE.md](CLAUDE.md).
+
+**iOS:** el código compartido ya compila para iOS y la CI lo comprueba en macOS, pero el proyecto de Xcode (`iosApp`) aún no existe; queda pendiente (ver ADR-0010).
 
 ## Seguridad
 
