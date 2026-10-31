@@ -23,11 +23,10 @@ La aplicación móvil se construye con **Kotlin Multiplatform (KMP)**. La lógic
 
 - El dominio y los casos de uso viven en código común Kotlin puro, sin dependencias de Android ni iOS. Esto refuerza la regla de dependencias de Clean Architecture.
 - Se necesitan bibliotecas compatibles con KMP para red, almacenamiento local, inyección de dependencias y serialización.
-- Compilar y probar en iOS exige un equipo Mac. El SRS no pide iOS en la primera versión, así que Android es el destino prioritario y iOS puede añadirse después sin reescribir el dominio.
+- Compilar y probar en iOS exige macOS. Se resuelve con CI en macOS y pruebas en iPhone, como se detalla en el ADR-0006.
 - La configuración inicial es más compleja que la de un proyecto solo Android.
 
 ## Preguntas abiertas
 
-- ¿La interfaz se escribe con Compose Multiplatform (una sola UI) o de forma nativa por plataforma? Se decidirá en un ADR aparte.
-- ¿Qué biblioteca de inyección de dependencias se usa (por ejemplo, Koin)?
-- ¿Se publica iOS en esta versión o solo se deja preparada la base común?
+- Inyección de dependencias, patrón de presentación e integración continua: propuestos en el ADR-0009.
+- Interfaz e iOS: propuestas en el ADR-0006 (Compose Multiplatform, Android e iOS desde el inicio).

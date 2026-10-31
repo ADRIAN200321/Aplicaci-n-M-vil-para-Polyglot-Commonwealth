@@ -1,0 +1,20 @@
+# PostgreSQL solo para desarrollo local. Las credenciales salen de .env (copia .env.example).
+services:
+  base-de-datos:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-polyglot}
+      POSTGRES_USER: ${DATABASE_USER:-polyglot}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Define DATABASE_PASSWORD en .env}
+    ports:
+      - "5432:5432"
+    volumes:
+      - datos-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-polyglot} -d ${POSTGRES_DB:-polyglot}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  datos-postgres:

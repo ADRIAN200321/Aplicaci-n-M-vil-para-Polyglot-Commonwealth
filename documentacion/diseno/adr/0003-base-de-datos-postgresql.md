@@ -22,12 +22,11 @@ Se usa **PostgreSQL** como base de datos relacional del backend.
 ## Consecuencias
 
 - Las reglas de integridad (llaves únicas, llaves foráneas, secuencias para el número de certificado) se apoyan en la base de datos.
-- El acceso desde Ktor se hará con una biblioteca por definir, siempre detrás de interfaces de repositorio del dominio.
+- El acceso desde Ktor se hace con Exposed (ADR-0008), siempre detrás de interfaces de repositorio del dominio.
 - Las credenciales de conexión van en variables de entorno y nunca en el repositorio (RNF-03).
 - Las pruebas usan datos ficticios (RNF-05).
 
 ## Preguntas abiertas
 
 - ¿Qué motor usa hoy el panel de la academia? Si es distinto, ¿se migra o se integra?
-- ¿Dónde se aloja la base de datos en producción?
-- ¿Qué biblioteca de acceso se usa (por ejemplo, Exposed)?
+- Alojamiento y biblioteca de acceso: propuestos en el ADR-0008 (Docker, Exposed y Flyway).
