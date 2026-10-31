@@ -51,6 +51,7 @@ private val CODIGOS: Map<String, ErrorFicha> =
         "fecha_nacimiento_invalida" to ErrorFicha.FechaNacimientoInvalida,
         "fecha_nacimiento_futura" to ErrorFicha.FechaNacimientoFutura,
         "idioma_interes_vacio" to ErrorFicha.IdiomaInteresVacio,
+        "idioma_interes_no_disponible" to ErrorFicha.IdiomaInteresNoDisponible,
         "representante_requerido_para_menor" to ErrorFicha.RepresentanteRequeridoParaMenor,
         "representante_nombre_vacio" to ErrorFicha.RepresentanteNombreVacio,
         "representante_correo_invalido" to ErrorFicha.RepresentanteCorreoInvalido,

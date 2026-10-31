@@ -1,5 +1,13 @@
 package co.polyglot.matricula.presentation
 
+import co.polyglot.catalogo.domain.CodigoIdioma
+import co.polyglot.catalogo.domain.Idioma
+import co.polyglot.catalogo.domain.IdiomaRepository
+import co.polyglot.catalogo.domain.ListarIdiomas
+import co.polyglot.catalogo.domain.NivelMcer
+import co.polyglot.catalogo.domain.ObtenerIdioma
+import co.polyglot.catalogo.domain.ResultadoBusqueda
+import co.polyglot.catalogo.domain.ResultadoListado
 import co.polyglot.matricula.domain.EnviarFichaInscripcion
 import co.polyglot.matricula.domain.ErrorFicha
 import co.polyglot.matricula.domain.FichaInscripcion
@@ -35,10 +43,31 @@ class FichaInscripcionViewModelTest {
         }
     }
 
+    private class CatalogoFalso(
+        var listado: ResultadoListado,
+    ) : IdiomaRepository {
+        var llamadas = 0
+
+        override suspend fun listar(): ResultadoListado {
+            llamadas++
+            return listado
+        }
+
+        override suspend fun buscar(codigo: CodigoIdioma): ResultadoBusqueda =
+            (listado as? ResultadoListado.Exito)
+                ?.idiomas
+                ?.firstOrNull { it.codigo == codigo }
+                ?.let(ResultadoBusqueda::Encontrado)
+                ?: ResultadoBusqueda.NoEncontrado
+    }
+
     private val relojFijo =
         object : Reloj {
             override fun hoy(): LocalDate = LocalDate(2026, 10, 30)
         }
+
+    private val ingles = Idioma(checkNotNull(CodigoIdioma.desde("en")), "English", NivelMcer.C2, emptyList())
+    private val frances = Idioma(checkNotNull(CodigoIdioma.desde("fr")), "Français", NivelMcer.C1, emptyList())
 
     @BeforeTest
     fun prepararHiloPrincipal() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -46,9 +75,13 @@ class FichaInscripcionViewModelTest {
     @AfterTest
     fun restaurarHiloPrincipal() = Dispatchers.resetMain()
 
-    private fun crear(respuesta: ResultadoRegistro): Pair<FichaInscripcionViewModel, RepositorioFalso> {
+    private fun crear(
+        respuesta: ResultadoRegistro,
+        catalogo: CatalogoFalso = CatalogoFalso(ResultadoListado.Exito(listOf(ingles, frances))),
+    ): Pair<FichaInscripcionViewModel, RepositorioFalso> {
         val repositorio = RepositorioFalso(respuesta)
-        return FichaInscripcionViewModel(EnviarFichaInscripcion(repositorio, relojFijo)) to repositorio
+        val enviar = EnviarFichaInscripcion(repositorio, relojFijo, ObtenerIdioma(catalogo))
+        return FichaInscripcionViewModel(enviar, ListarIdiomas(catalogo)) to repositorio
     }
 
     private fun FichaInscripcionViewModel.llenarFichaDeAdulto() {
@@ -56,8 +89,56 @@ class FichaInscripcionViewModelTest {
         onAction(FichaAction.ApellidosCambiados("Prueba"))
         onAction(FichaAction.CorreoCambiado("ana@ejemplo.test"))
         onAction(FichaAction.FechaNacimientoCambiada("2000-05-10"))
-        onAction(FichaAction.IdiomaInteresCambiado("idioma-1"))
+        onAction(FichaAction.IdiomaInteresCambiado("en"))
         onAction(FichaAction.TratamientoDatosCambiado(true))
+    }
+
+    @Test
+    fun `dado un catalogo con idiomas cuando se abre la ficha entonces ofrece los idiomas ordenados`() {
+        val (viewModel, _) = crear(ResultadoRegistro.ErrorInesperado)
+
+        val estado = viewModel.estado.value
+        assertFalse(estado.cargandoIdiomas)
+        assertFalse(estado.errorCargaIdiomas)
+        assertEquals(listOf(OpcionIdioma("en", "English"), OpcionIdioma("fr", "Français")), estado.idiomas)
+    }
+
+    @Test
+    fun `dado que el catalogo no responde cuando se abre la ficha entonces marca el error de carga`() {
+        val catalogo = CatalogoFalso(ResultadoListado.SinConexion)
+
+        val (viewModel, _) = crear(ResultadoRegistro.ErrorInesperado, catalogo)
+
+        assertTrue(viewModel.estado.value.errorCargaIdiomas)
+        assertTrue(
+            viewModel.estado.value.idiomas
+                .isEmpty(),
+        )
+    }
+
+    @Test
+    fun `dado un error de carga de idiomas cuando se pulsa reintentar y vuelve la red entonces ofrece los idiomas`() {
+        val catalogo = CatalogoFalso(ResultadoListado.SinConexion)
+        val (viewModel, _) = crear(ResultadoRegistro.ErrorInesperado, catalogo)
+        catalogo.listado = ResultadoListado.Exito(listOf(ingles))
+
+        viewModel.onAction(FichaAction.ReintentarCargaIdiomas)
+
+        assertFalse(viewModel.estado.value.errorCargaIdiomas)
+        assertEquals(listOf(OpcionIdioma("en", "English")), viewModel.estado.value.idiomas)
+        assertEquals(2, catalogo.llamadas)
+    }
+
+    @Test
+    fun `dado que no se eligio idioma cuando se pulsa enviar entonces pide elegir uno`() {
+        val (viewModel, repositorio) = crear(ResultadoRegistro.ErrorInesperado)
+        viewModel.llenarFichaDeAdulto()
+        viewModel.onAction(FichaAction.IdiomaInteresCambiado(""))
+
+        viewModel.onAction(FichaAction.EnviarPulsado)
+
+        assertEquals(setOf(ErrorFicha.IdiomaInteresVacio), viewModel.estado.value.errores)
+        assertEquals(0, repositorio.llamadas)
     }
 
     @Test

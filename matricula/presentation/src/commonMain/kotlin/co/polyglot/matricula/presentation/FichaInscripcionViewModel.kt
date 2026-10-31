@@ -2,6 +2,9 @@ package co.polyglot.matricula.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.polyglot.catalogo.domain.Idioma
+import co.polyglot.catalogo.domain.ListarIdiomas
+import co.polyglot.catalogo.domain.ResultadoListado
 import co.polyglot.matricula.domain.BorradorFicha
 import co.polyglot.matricula.domain.BorradorRepresentante
 import co.polyglot.matricula.domain.EnviarFichaInscripcion
@@ -17,6 +20,7 @@ import kotlinx.coroutines.launch
 
 class FichaInscripcionViewModel(
     private val enviarFicha: EnviarFichaInscripcion,
+    private val listarIdiomas: ListarIdiomas,
 ) : ViewModel() {
     private val estadoInterno = MutableStateFlow(FichaUiState())
     val estado: StateFlow<FichaUiState> = estadoInterno.asStateFlow()
@@ -24,17 +28,36 @@ class FichaInscripcionViewModel(
     private val efectosInternos = Channel<FichaEffect>(Channel.BUFFERED)
     val efectos: Flow<FichaEffect> = efectosInternos.receiveAsFlow()
 
+    init {
+        cargarIdiomas()
+    }
+
     fun onAction(accion: FichaAction) {
         when (accion) {
             is FichaAction.NombresCambiados -> estadoInterno.update { it.copy(nombres = accion.texto) }
             is FichaAction.ApellidosCambiados -> estadoInterno.update { it.copy(apellidos = accion.texto) }
             is FichaAction.CorreoCambiado -> estadoInterno.update { it.copy(correo = accion.texto) }
             is FichaAction.FechaNacimientoCambiada -> estadoInterno.update { it.copy(fechaNacimiento = accion.texto) }
-            is FichaAction.IdiomaInteresCambiado -> estadoInterno.update { it.copy(idiomaInteres = accion.texto) }
+            is FichaAction.IdiomaInteresCambiado -> estadoInterno.update { it.copy(idiomaInteres = accion.codigo) }
+            FichaAction.ReintentarCargaIdiomas -> cargarIdiomas()
             is FichaAction.RepresentanteNombreCambiado -> estadoInterno.update { it.copy(representanteNombre = accion.texto) }
             is FichaAction.RepresentanteCorreoCambiado -> estadoInterno.update { it.copy(representanteCorreo = accion.texto) }
             is FichaAction.TratamientoDatosCambiado -> estadoInterno.update { it.copy(aceptaTratamientoDatos = accion.acepta) }
             FichaAction.EnviarPulsado -> enviar()
+        }
+    }
+
+    private fun cargarIdiomas() {
+        estadoInterno.update { it.copy(cargandoIdiomas = true, errorCargaIdiomas = false) }
+        viewModelScope.launch {
+            when (val resultado = listarIdiomas()) {
+                is ResultadoListado.Exito ->
+                    estadoInterno.update {
+                        it.copy(cargandoIdiomas = false, idiomas = resultado.idiomas.map { idioma -> idioma.aOpcion() })
+                    }
+                ResultadoListado.SinConexion, ResultadoListado.ErrorInesperado ->
+                    estadoInterno.update { it.copy(cargandoIdiomas = false, errorCargaIdiomas = true) }
+            }
         }
     }
 
@@ -59,6 +82,8 @@ class FichaInscripcionViewModel(
         efectosInternos.trySend(FichaEffect.MostrarAviso(aviso))
     }
 }
+
+private fun Idioma.aOpcion() = OpcionIdioma(codigo = codigo.valor, nombre = nombre)
 
 private fun FichaUiState.aBorrador(): BorradorFicha =
     BorradorFicha(

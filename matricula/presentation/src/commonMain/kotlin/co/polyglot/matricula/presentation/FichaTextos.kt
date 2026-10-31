@@ -10,6 +10,7 @@ internal fun ErrorFicha.mensaje(): String =
         ErrorFicha.FechaNacimientoInvalida -> "Usa el formato AAAA-MM-DD."
         ErrorFicha.FechaNacimientoFutura -> "La fecha de nacimiento no puede ser futura."
         ErrorFicha.IdiomaInteresVacio -> "Indica el idioma que quieres aprender."
+        ErrorFicha.IdiomaInteresNoDisponible -> "Ese idioma no está disponible. Elige uno de la lista."
         ErrorFicha.RepresentanteRequeridoParaMenor -> "Si eres menor de 18 años necesitas un representante legal."
         ErrorFicha.RepresentanteNombreVacio -> "Escribe el nombre del representante."
         ErrorFicha.RepresentanteCorreoInvalido -> "El correo del representante no es válido."

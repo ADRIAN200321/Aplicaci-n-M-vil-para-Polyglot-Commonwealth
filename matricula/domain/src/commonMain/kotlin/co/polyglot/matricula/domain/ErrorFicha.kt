@@ -14,6 +14,9 @@ sealed interface ErrorFicha {
 
     data object IdiomaInteresVacio : ErrorFicha
 
+    /** El texto no es el código de un idioma del catálogo, o el catálogo no lo tiene. */
+    data object IdiomaInteresNoDisponible : ErrorFicha
+
     data object RepresentanteRequeridoParaMenor : ErrorFicha
 
     data object RepresentanteNombreVacio : ErrorFicha

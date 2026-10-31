@@ -7,13 +7,23 @@ data class FichaUiState(
     val apellidos: String = "",
     val correo: String = "",
     val fechaNacimiento: String = "",
+    /** Código del idioma elegido entre [idiomas]; vacío mientras no se elige. */
     val idiomaInteres: String = "",
+    val idiomas: List<OpcionIdioma> = emptyList(),
+    val cargandoIdiomas: Boolean = true,
+    val errorCargaIdiomas: Boolean = false,
     val representanteNombre: String = "",
     val representanteCorreo: String = "",
     val aceptaTratamientoDatos: Boolean = false,
     val enviando: Boolean = false,
     val errores: Set<ErrorFicha> = emptySet(),
     val inscripcionEnviada: Boolean = false,
+)
+
+/** Idioma del catálogo tal como se ofrece en el selector. */
+data class OpcionIdioma(
+    val codigo: String,
+    val nombre: String,
 )
 
 sealed interface FichaAction {
@@ -34,8 +44,10 @@ sealed interface FichaAction {
     ) : FichaAction
 
     data class IdiomaInteresCambiado(
-        val texto: String,
+        val codigo: String,
     ) : FichaAction
+
+    data object ReintentarCargaIdiomas : FichaAction
 
     data class RepresentanteNombreCambiado(
         val texto: String,
