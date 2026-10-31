@@ -1,8 +1,8 @@
 package co.polyglot.servidor.datos
 
+import co.polyglot.catalogo.domain.CodigoIdioma
 import co.polyglot.matricula.domain.Correo
 import co.polyglot.matricula.domain.FichaInscripcion
-import co.polyglot.matricula.domain.IdiomaId
 import co.polyglot.matricula.domain.RepresentanteLegal
 import co.polyglot.matricula.domain.ResultadoRegistro
 import kotlinx.coroutines.test.runTest
@@ -51,7 +51,7 @@ class InscripcionExposedRepositoryTest {
         apellidos = "Prueba",
         correo = checkNotNull(Correo.desde(correo)),
         fechaNacimiento = LocalDate(2012, 1, 1),
-        idiomaInteres = IdiomaId("idioma-1"),
+        idiomaInteres = checkNotNull(CodigoIdioma.desde("en")),
         representante = representante,
     )
 
