@@ -22,7 +22,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Formato (ktlint)
         run: ./gradlew ktlintCheck --console=plain
       - name: Pruebas de dominio, datos, presentación, arranque y arquitectura
@@ -48,7 +48,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Pruebas de dominio y presentación en el simulador
         run: >
           ./gradlew
