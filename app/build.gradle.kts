@@ -22,6 +22,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":catalogo:domain"))
+            implementation(project(":catalogo:data"))
+            implementation(project(":catalogo:presentation"))
             implementation(project(":matricula:domain"))
             implementation(project(":matricula:data"))
             implementation(project(":matricula:presentation"))
