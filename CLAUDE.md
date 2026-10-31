@@ -13,6 +13,7 @@ Las decisiones de arquitectura viven en `documentacion/diseno/adr/`. Mientras un
 - Autenticación con JWT y token de refresco, Argon2id y registro por etapas (ADR-0007).
 - Docker, Exposed, Flyway y SQLDelight, con despliegue por fases para gastar poco al inicio (ADR-0008).
 - Koin, MVVM con flujo unidireccional y CI en GitHub Actions (ADR-0009).
+- Catálogo de idiomas en base de datos y `matricula` que lo consume por su dominio (ADR-0011).
 
 **No elijas por tu cuenta** lo que los ADR dejan abierto: servicio de correo, proveedor de video, proveedor del servidor. Si el trabajo lo necesita, propón un ADR nuevo y pregunta.
 
@@ -104,7 +105,7 @@ Requieren JDK 17 o superior (`JAVA_HOME`) y el SDK de Android (`local.properties
 
 ```bash
 ./gradlew ktlintCheck                      # formato (ktlintFormat lo corrige)
-./gradlew :matricula:domain:jvmTest        # pruebas de un módulo (también :data, :presentation y :app:jvmTest)
+./gradlew :matricula:domain:jvmTest        # pruebas de un módulo (también :data, :presentation, :catalogo:* y :app:jvmTest)
 ./gradlew :pruebas-arquitectura:test       # regla de dependencias (Konsist)
 ./gradlew :servidor:test                   # backend; las de PostgreSQL necesitan Docker
 ./gradlew :androidApp:assembleDebug        # compila la app de Android

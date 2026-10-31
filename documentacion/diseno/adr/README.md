@@ -16,6 +16,7 @@ Cada decisión técnica importante del proyecto se documenta en un archivo corto
 | [0008](0008-datos-e-infraestructura.md) | Datos e infraestructura: Docker, Exposed, Flyway y SQLDelight | Propuesta |
 | [0009](0009-herramientas-del-equipo-koin-udf-y-ci.md) | Herramientas del equipo: Koin, MVVM unidireccional y CI | Propuesta |
 | [0010](0010-esqueleto-andante-y-estructura-de-modulos.md) | Esqueleto andante y estructura de módulos | Propuesta |
+| [0011](0011-catalogo-de-idiomas.md) | Catálogo de idiomas | Propuesta |
 
 > Los ADR 0004 y 0005 asumen la visión ampliada del proyecto (plataforma de aprendizaje con clases en vivo), que aún no está en el SRS. Antes de construir hay que actualizar el SRS a la versión 2.0.
 
