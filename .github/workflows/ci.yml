@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: Formato, pruebas y Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Formato (ktlint)
+        run: ./gradlew ktlintCheck --console=plain
+      - name: Pruebas de dominio, datos, presentación, arranque y arquitectura
+        run: >
+          ./gradlew
+          :matricula:domain:jvmTest
+          :matricula:data:jvmTest
+          :matricula:presentation:jvmTest
+          :app:jvmTest
+          :pruebas-arquitectura:test
+          --console=plain
+      - name: Pruebas del servidor (usa Docker para PostgreSQL con Testcontainers)
+        run: ./gradlew :servidor:test --console=plain
+      - name: Compilar la app de Android
+        run: ./gradlew :androidApp:assembleDebug --console=plain
+
+  ios:
+    name: iOS (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Pruebas de dominio y presentación en el simulador
+        run: >
+          ./gradlew
+          :matricula:domain:iosSimulatorArm64Test
+          :matricula:presentation:iosSimulatorArm64Test
+          --console=plain
+      - name: Enlazar el framework de iOS
+        run: ./gradlew :app:linkDebugFrameworkIosSimulatorArm64 --console=plain
