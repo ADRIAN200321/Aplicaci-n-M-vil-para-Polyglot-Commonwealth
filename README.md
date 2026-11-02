@@ -1,6 +1,6 @@
 # Polyglot Project
 
-Aplicación móvil para **Polyglot Commonwealth Language & Culture**, academia de idiomas de Ocaña (Norte de Santander), integrada con el sitio web y el panel administrativo que la academia ya utiliza.
+Aplicación móvil para **Polyglot Commonwealth Language & Culture**, academia de idiomas de Ocaña (Norte de Santander). Es un sistema nuevo, con su propio servidor y base de datos, que no reutiliza el panel actual de la academia (ADR-0012).
 
 > Proyecto formativo del programa Análisis y Desarrollo de Software (ADSO) del SENA.
 
@@ -26,7 +26,7 @@ Crear una aplicación móvil que permita a quienes quieren aprender un idioma co
 
 ## Objetivo general
 
-Desarrollar una aplicación móvil para Polyglot Commonwealth, integrada con el sitio web y el panel administrativo existentes, que facilite la inscripción, el aprendizaje y el seguimiento académico de aspirantes y estudiantes, y que dé al Administrador el control completo de la información.
+Desarrollar una aplicación móvil para Polyglot Commonwealth, con su propio servidor y una sección de gestión para el Administrador, que facilite la inscripción, el aprendizaje y el seguimiento académico de aspirantes y estudiantes, y que dé al Administrador el control completo de la información.
 
 ## Actores del sistema
 
@@ -35,7 +35,7 @@ Desarrollar una aplicación móvil para Polyglot Commonwealth, integrada con el 
 | Visitante | Web y app | Ver programas, ofertas, equipo, ubicación y exámenes; hacer el test de nivel; conversar con Poly |
 | Aspirante | Web y app | Todo lo del visitante, más completar la ficha de inscripción y descargar recursos |
 | Estudiante | App y web | Consultar recursos, juegos y su información académica; recibir notificaciones |
-| Administrador | Panel administrativo | Gestionar inscripciones, estudiantes, certificados, ciclos de pago y multimedia |
+| Administrador | App, sección de gestión (por rol) | Gestionar inscripciones, estudiantes, certificados, ciclos de pago y multimedia |
 | Representante legal | Datos en la ficha | Sus datos son obligatorios al inscribir a un menor de edad |
 
 ## Alcance de la primera versión
@@ -45,38 +45,43 @@ Desarrollar una aplicación móvil para Polyglot Commonwealth, integrada con el 
 - Inicio, programas, test de nivel, contacto y ubicación.
 - Ficha de inscripción de tres pasos, con datos del representante legal para menores.
 - Inicio de sesión con control de acceso por rol.
-- Integración de las inscripciones con el panel (listar, descargar PDF, matricular y eliminar).
-- Seguridad y protección de datos personales (Ley 1581 de 2012).
+- Gestión de inscripciones en la app para el Administrador (listar, descargar PDF, matricular y eliminar).
+- Ruta de lecciones y ejercicios por nivel, con su gestión sin programar.
+- Seguridad y protección de datos personales (Ley 1581 de 2012), incluida la imagen y la voz en las clases.
 
-**Prioridad media:** recursos de estudio, juegos, asistente Poly, equipo y certificaciones, perfil del estudiante y gestión de estudiantes, certificados y multimedia desde el panel.
+**Prioridad media:** recursos de estudio, juegos, asistente Poly, equipo y certificaciones, perfil del estudiante, gestión de estudiantes, certificados y multimedia desde la app, progreso y evaluación de nivel, catálogo de idiomas, y clases en vivo con rol de Docente (agenda, reserva, video y consentimiento).
 
-**Prioridad baja:** cambio de idioma de la interfaz, certificados propios del estudiante, notificaciones y consulta de ciclos de pago.
+**Prioridad baja:** cambio de idioma de la interfaz, certificados propios del estudiante, notificaciones, consulta de ciclos de pago, asistencia y recordatorios de clases.
 
-**Fuera de esta versión:** pagos en línea, clases en vivo, nuevos idiomas o sedes y rol de Docente.
+**Fuera de esta versión:** pagos en línea, sedes adicionales y la integración o migración con el panel actual (ADR-0012). La grabación de clases depende de lo que decida la academia.
 
 ## Estructura del repositorio
 
 ```
-Aplicaci-n-M-vil-para-Polyglot-Commonwealth/
-├── frontend/          # Aplicación móvil
-├── backend/           # API y lógica del sistema
-├── database/          # Script SQL y modelo de datos
-├── documentacion/
-│   ├── requisitos/    # Documento de requisitos (Semana 1)
-│   ├── diseno/        # Diagramas, prototipos y modelo de datos
-│   ├── pruebas/       # Matriz de pruebas y evidencias
-│   └── manuales/      # Manual técnico y manual de usuario
-├── README.md
-└── .gitignore
+Polyglot-Commonwealth/
+├── androidApp/            # Aplicación de Android
+├── app/                   # Punto de arranque común (Koin, navegación)
+├── catalogo/              # Módulo: idiomas y programas (domain, data, presentation)
+├── matricula/             # Módulo: ficha de inscripción (domain, data, presentation)
+├── servidor/              # Backend con Ktor
+├── database/migrations/   # Migraciones SQL de Flyway
+├── pruebas-arquitectura/  # Reglas de dependencia entre capas (Konsist)
+├── build-logic/           # Plugins de convención de Gradle
+└── documentacion/
+    ├── requisitos/        # SRS y preguntas a la academia
+    └── diseno/adr/        # Decisiones de arquitectura
 ```
 
-> La tecnología de cada carpeta se define en el diseño del sistema (Semana 2); la estructura se ajustará si es necesario.
+> Los módulos `identidad`, `aprendizaje`, `clases-en-vivo`, `contenido-admin` y `notificaciones` (ADR-0004) se agregan a medida que se construyen.
 
 ## Documentación
 
 | Documento | Ubicación |
 | --- | --- |
-| Especificación de requisitos de software (SRS), Semana 1 | `documentacion/requisitos/Polyglot_Project_SRS_Semana_1.docx` |
+| Especificación de requisitos de software (SRS), v2.0 (vigente) | `documentacion/requisitos/Polyglot_Project_SRS_v2.0.docx` |
+| SRS de la Semana 1 (v1.0, reemplazado por la v2.0) | `documentacion/requisitos/Polyglot_Project_SRS_Semana_1.docx` |
+| Preguntas pendientes para la academia | [`documentacion/requisitos/preguntas-a-la-academia.md`](documentacion/requisitos/preguntas-a-la-academia.md) |
+| Decisiones de arquitectura (ADR) | [`documentacion/diseno/adr/`](documentacion/diseno/adr/README.md) |
 
 ## Avance del proyecto
 

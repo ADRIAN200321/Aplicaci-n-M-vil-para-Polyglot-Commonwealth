@@ -6,7 +6,8 @@ Aplicación móvil de **Polyglot Commonwealth Language & Culture** (academia de 
 
 Las decisiones de arquitectura viven en `documentacion/diseno/adr/`. Mientras un ADR esté en estado **Propuesta**, es la dirección a seguir, pero no se amplía ni se contradice sin avisar.
 
-- Kotlin Multiplatform, Ktor y PostgreSQL (ADR-0001 a 0003).
+- Kotlin Multiplatform, Ktor y PostgreSQL (ADR-0001, 0003 y 0012; el ADR-0002 fue reemplazado).
+- Sistema nuevo sin reutilizar el código de la academia ni migrar sus datos, con la gestión del Administrador dentro de la app por rol (ADR-0012).
 - Dominio multi-idioma y módulos por contexto (ADR-0004).
 - Clases en vivo con proveedor externo (ADR-0005).
 - Interfaz con Compose Multiplatform, Android e iOS desde el inicio (ADR-0006). El código común no usa APIs de Android ni de iOS.
