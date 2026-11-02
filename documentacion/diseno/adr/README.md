@@ -7,7 +7,7 @@ Cada decisión técnica importante del proyecto se documenta en un archivo corto
 | ADR | Decisión | Estado |
 | --- | --- | --- |
 | [0001](0001-plataforma-movil-kotlin-multiplatform.md) | Plataforma móvil: Kotlin Multiplatform | Propuesta |
-| [0002](0002-backend-ktor.md) | Backend: Ktor | Propuesta |
+| [0002](0002-backend-ktor.md) | Backend: Ktor | Reemplazada por ADR-0012 |
 | [0003](0003-base-de-datos-postgresql.md) | Base de datos: PostgreSQL | Propuesta |
 | [0004](0004-modelo-multi-idioma-y-modulos.md) | Modelo multi-idioma y módulos por contexto | Propuesta |
 | [0005](0005-clases-en-vivo-con-proveedor-externo.md) | Clases en vivo con proveedor externo | Propuesta |
@@ -17,8 +17,9 @@ Cada decisión técnica importante del proyecto se documenta en un archivo corto
 | [0009](0009-herramientas-del-equipo-koin-udf-y-ci.md) | Herramientas del equipo: Koin, MVVM unidireccional y CI | Propuesta |
 | [0010](0010-esqueleto-andante-y-estructura-de-modulos.md) | Esqueleto andante y estructura de módulos | Propuesta |
 | [0011](0011-catalogo-de-idiomas.md) | Catálogo de idiomas | Propuesta |
+| [0012](0012-sistema-nuevo-sin-panel-heredado.md) | Sistema nuevo, sin migración y con panel de administración dentro de la app | Propuesta |
 
-> Los ADR 0004 y 0005 asumen la visión ampliada del proyecto (plataforma de aprendizaje con clases en vivo), que aún no está en el SRS. Antes de construir hay que actualizar el SRS a la versión 2.0.
+> Los ADR 0004 y 0005 asumen la visión ampliada del proyecto (plataforma de aprendizaje con clases en vivo), que recoge el SRS v2.0 (`documentacion/requisitos/Polyglot_Project_SRS_v2.0.docx`).
 
 ## Estados
 

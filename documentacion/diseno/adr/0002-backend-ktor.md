@@ -1,6 +1,6 @@
 # ADR-0002: Backend: Ktor
 
-- **Estado:** Propuesta
+- **Estado:** Reemplazada por [ADR-0012](0012-sistema-nuevo-sin-panel-heredado.md)
 - **Fecha:** 2026-10-30
 - **Autor:** Juan Santiago Guerrero
 
