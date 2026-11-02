@@ -1,5 +1,6 @@
 package co.polyglot.matricula.domain
 
+import co.polyglot.catalogo.domain.CodigoIdioma
 import kotlinx.datetime.LocalDate
 import kotlin.jvm.JvmInline
 
@@ -9,18 +10,13 @@ data class FichaInscripcion(
     val apellidos: String,
     val correo: Correo,
     val fechaNacimiento: LocalDate,
-    val idiomaInteres: IdiomaId,
+    val idiomaInteres: CodigoIdioma,
     val representante: RepresentanteLegal?,
 )
 
 data class RepresentanteLegal(
     val nombreCompleto: String,
     val correo: Correo,
-)
-
-@JvmInline
-value class IdiomaId(
-    val valor: String,
 )
 
 @JvmInline

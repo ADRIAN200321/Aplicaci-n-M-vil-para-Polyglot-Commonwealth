@@ -28,6 +28,9 @@ jobs:
       - name: Pruebas de dominio, datos, presentación, arranque y arquitectura
         run: >
           ./gradlew
+          :catalogo:domain:jvmTest
+          :catalogo:data:jvmTest
+          :catalogo:presentation:jvmTest
           :matricula:domain:jvmTest
           :matricula:data:jvmTest
           :matricula:presentation:jvmTest
@@ -52,6 +55,8 @@ jobs:
       - name: Pruebas de dominio y presentación en el simulador
         run: >
           ./gradlew
+          :catalogo:domain:iosSimulatorArm64Test
+          :catalogo:presentation:iosSimulatorArm64Test
           :matricula:domain:iosSimulatorArm64Test
           :matricula:presentation:iosSimulatorArm64Test
           --console=plain

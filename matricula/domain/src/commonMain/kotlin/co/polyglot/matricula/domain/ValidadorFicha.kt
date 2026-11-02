@@ -1,5 +1,6 @@
 package co.polyglot.matricula.domain
 
+import co.polyglot.catalogo.domain.CodigoIdioma
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.yearsUntil
 
@@ -27,7 +28,11 @@ class ValidadorFicha {
         if (borrador.apellidos.isBlank()) errores += ErrorFicha.ApellidosVacios
         val correo = Correo.desde(borrador.correo)
         if (correo == null) errores += ErrorFicha.CorreoInvalido
-        if (borrador.idiomaInteres.isBlank()) errores += ErrorFicha.IdiomaInteresVacio
+        val idioma = CodigoIdioma.desde(borrador.idiomaInteres)
+        when {
+            borrador.idiomaInteres.isBlank() -> errores += ErrorFicha.IdiomaInteresVacio
+            idioma == null -> errores += ErrorFicha.IdiomaInteresNoDisponible
+        }
         if (!borrador.aceptaTratamientoDatos) errores += ErrorFicha.TratamientoDatosNoAceptado
 
         val fecha = interpretarFecha(borrador.fechaNacimiento)
@@ -39,14 +44,14 @@ class ValidadorFicha {
 
         val representante = validarRepresentante(borrador.representante, esMenor, errores)
 
-        return if (errores.isEmpty() && correo != null && fecha != null) {
+        return if (errores.isEmpty() && correo != null && fecha != null && idioma != null) {
             ResultadoValidacion.Valida(
                 FichaInscripcion(
                     nombres = borrador.nombres.trim(),
                     apellidos = borrador.apellidos.trim(),
                     correo = correo,
                     fechaNacimiento = fecha,
-                    idiomaInteres = IdiomaId(borrador.idiomaInteres.trim()),
+                    idiomaInteres = idioma,
                     representante = representante,
                 ),
             )

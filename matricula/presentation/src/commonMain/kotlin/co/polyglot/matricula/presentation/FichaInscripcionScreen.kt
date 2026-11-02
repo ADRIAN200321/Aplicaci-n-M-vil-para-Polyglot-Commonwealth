@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -19,7 +22,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import co.polyglot.matricula.domain.ErrorFicha
 import kotlinx.coroutines.flow.Flow
@@ -86,9 +91,7 @@ private fun Formulario(
         estado.fechaNacimiento,
         estado.errores.mensajeDe(ErrorFicha.FechaNacimientoInvalida, ErrorFicha.FechaNacimientoFutura),
     ) { onAction(FichaAction.FechaNacimientoCambiada(it)) }
-    Campo("Idioma que quieres aprender", estado.idiomaInteres, estado.errores.mensajeDe(ErrorFicha.IdiomaInteresVacio)) {
-        onAction(FichaAction.IdiomaInteresCambiado(it))
-    }
+    SelectorIdioma(estado, onAction)
 
     Text("Si eres menor de 18 años", style = MaterialTheme.typography.titleMedium)
     Campo(
@@ -110,6 +113,50 @@ private fun Formulario(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Text(if (estado.enviando) "Enviando…" else "Enviar ficha")
+    }
+}
+
+@Composable
+private fun SelectorIdioma(
+    estado: FichaUiState,
+    onAction: (FichaAction) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text("Idioma que quieres aprender", style = MaterialTheme.typography.titleMedium)
+        when {
+            estado.cargandoIdiomas -> CircularProgressIndicator()
+            estado.errorCargaIdiomas -> {
+                Text("No pudimos cargar los idiomas.", color = MaterialTheme.colorScheme.error)
+                Button(onClick = { onAction(FichaAction.ReintentarCargaIdiomas) }) { Text("Reintentar") }
+            }
+            else ->
+                estado.idiomas.forEach { opcion ->
+                    OpcionDeIdioma(opcion, opcion.codigo == estado.idiomaInteres) {
+                        onAction(FichaAction.IdiomaInteresCambiado(opcion.codigo))
+                    }
+                }
+        }
+        estado.errores.mensajeDe(ErrorFicha.IdiomaInteresVacio, ErrorFicha.IdiomaInteresNoDisponible)?.let {
+            Text(it, color = MaterialTheme.colorScheme.error)
+        }
+    }
+}
+
+@Composable
+private fun OpcionDeIdioma(
+    opcion: OpcionIdioma,
+    seleccionada: Boolean,
+    alElegir: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .selectable(selected = seleccionada, onClick = alElegir, role = Role.RadioButton),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(selected = seleccionada, onClick = null)
+        Text(opcion.nombre, modifier = Modifier.padding(start = 8.dp))
     }
 }
 

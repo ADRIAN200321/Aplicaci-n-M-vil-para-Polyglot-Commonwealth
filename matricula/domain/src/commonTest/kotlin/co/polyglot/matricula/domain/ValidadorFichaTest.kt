@@ -16,7 +16,7 @@ class ValidadorFichaTest {
             apellidos = "Prueba Ficticia",
             correo = "Ana@Ejemplo.test ",
             fechaNacimiento = "2000-05-10",
-            idiomaInteres = "idioma-1",
+            idiomaInteres = "en",
             representante = null,
             aceptaTratamientoDatos = true,
         )
@@ -31,6 +31,20 @@ class ValidadorFichaTest {
         assertEquals("Ana María", resultado.ficha.nombres)
         assertEquals("ana@ejemplo.test", resultado.ficha.correo.valor)
         assertNull(resultado.ficha.representante)
+    }
+
+    @Test
+    fun `dado un codigo de idioma con mayusculas y espacios cuando se valida entonces se normaliza`() {
+        val resultado = assertIs<ResultadoValidacion.Valida>(validador.validar(borradorAdulto().copy(idiomaInteres = " FR "), hoy))
+
+        assertEquals("fr", resultado.ficha.idiomaInteres.valor)
+    }
+
+    @Test
+    fun `dado un texto que no es un codigo de idioma cuando se valida entonces el idioma no esta disponible`() {
+        val conTextoLibre = borradorAdulto().copy(idiomaInteres = "ingles avanzado")
+
+        assertEquals(listOf(ErrorFicha.IdiomaInteresNoDisponible), erroresDe(conTextoLibre))
     }
 
     @Test

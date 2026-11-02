@@ -23,6 +23,7 @@ application {
 }
 
 dependencies {
+    implementation(project(":catalogo:domain"))
     implementation(project(":matricula:domain"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)

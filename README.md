@@ -93,7 +93,7 @@ Aplicaci-n-M-vil-para-Polyglot-Commonwealth/
 
 ## Cómo ejecutar el proyecto
 
-Ya existe un **esqueleto andante** (ADR-0010): la ficha de inscripción de punta a punta, desde la pantalla hasta PostgreSQL.
+Ya existe un **esqueleto andante** (ADR-0010): la ficha de inscripción de punta a punta, desde la pantalla hasta PostgreSQL. La ficha elige el idioma del **catálogo de idiomas** (ADR-0011), que la migración de Flyway carga en la base de datos y la app muestra en la pantalla *Programas*.
 
 **Requisitos:** JDK 17 o superior, Docker, y el SDK de Android (Android Studio) para la app. Para iOS se necesita un Mac.
 
@@ -122,7 +122,7 @@ Ya existe un **esqueleto andante** (ADR-0010): la ficha de inscripción de punta
 4. **Pruebas y calidad:**
 
    ```bash
-   ./gradlew ktlintCheck :matricula:domain:jvmTest :pruebas-arquitectura:test :servidor:test
+   ./gradlew ktlintCheck :catalogo:domain:jvmTest :matricula:domain:jvmTest :pruebas-arquitectura:test :servidor:test
    ```
 
    Las pruebas de PostgreSQL usan Testcontainers y se omiten si Docker no está disponible. La lista completa de comandos está en [CLAUDE.md](CLAUDE.md).

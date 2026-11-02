@@ -29,6 +29,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "polyglot"
 
+include(":catalogo:domain")
+include(":catalogo:data")
+include(":catalogo:presentation")
 include(":matricula:domain")
 include(":matricula:data")
 include(":matricula:presentation")

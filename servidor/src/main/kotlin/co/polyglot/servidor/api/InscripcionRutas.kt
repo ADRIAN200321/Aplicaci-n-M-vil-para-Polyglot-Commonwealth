@@ -1,5 +1,7 @@
 package co.polyglot.servidor.api
 
+import co.polyglot.catalogo.domain.ListarIdiomas
+import co.polyglot.catalogo.domain.ObtenerIdioma
 import co.polyglot.matricula.domain.BorradorFicha
 import co.polyglot.matricula.domain.BorradorRepresentante
 import co.polyglot.matricula.domain.EnviarFichaInscripcion
@@ -70,14 +72,19 @@ internal fun ErrorFicha.codigo(): String =
         ErrorFicha.FechaNacimientoInvalida -> "fecha_nacimiento_invalida"
         ErrorFicha.FechaNacimientoFutura -> "fecha_nacimiento_futura"
         ErrorFicha.IdiomaInteresVacio -> "idioma_interes_vacio"
+        ErrorFicha.IdiomaInteresNoDisponible -> "idioma_interes_no_disponible"
         ErrorFicha.RepresentanteRequeridoParaMenor -> "representante_requerido_para_menor"
         ErrorFicha.RepresentanteNombreVacio -> "representante_nombre_vacio"
         ErrorFicha.RepresentanteCorreoInvalido -> "representante_correo_invalido"
         ErrorFicha.TratamientoDatosNoAceptado -> "tratamiento_datos_no_aceptado"
     }
 
-/** Rutas HTTP. Reciben el caso de uso ya armado: no conocen el contenedor de dependencias. */
-fun Application.moduloApi(enviarFicha: EnviarFichaInscripcion) {
+/** Rutas HTTP. Reciben los casos de uso ya armados: no conocen el contenedor de dependencias. */
+fun Application.moduloApi(
+    enviarFicha: EnviarFichaInscripcion,
+    listarIdiomas: ListarIdiomas,
+    obtenerIdioma: ObtenerIdioma,
+) {
     install(ContentNegotiation) { json() }
     install(StatusPages) {
         // Sin mensajes ni trazas en la respuesta: podrían arrastrar datos personales.
@@ -87,6 +94,8 @@ fun Application.moduloApi(enviarFicha: EnviarFichaInscripcion) {
 
     routing {
         get("/salud") { call.respond(SaludDto("ok")) }
+
+        rutasIdiomas(listarIdiomas, obtenerIdioma)
 
         post("/api/v1/inscripciones") {
             val ficha = call.receive<FichaDto>()

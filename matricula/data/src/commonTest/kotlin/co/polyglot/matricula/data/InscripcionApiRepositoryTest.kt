@@ -1,9 +1,9 @@
 package co.polyglot.matricula.data
 
+import co.polyglot.catalogo.domain.CodigoIdioma
 import co.polyglot.matricula.domain.Correo
 import co.polyglot.matricula.domain.ErrorFicha
 import co.polyglot.matricula.domain.FichaInscripcion
-import co.polyglot.matricula.domain.IdiomaId
 import co.polyglot.matricula.domain.InscripcionId
 import co.polyglot.matricula.domain.ResultadoRegistro
 import io.ktor.client.engine.mock.MockEngine
@@ -30,7 +30,7 @@ class InscripcionApiRepositoryTest {
             apellidos = "Prueba",
             correo = checkNotNull(Correo.desde("ana@ejemplo.test")),
             fechaNacimiento = LocalDate(2000, 5, 10),
-            idiomaInteres = IdiomaId("idioma-1"),
+            idiomaInteres = checkNotNull(CodigoIdioma.desde("en")),
             representante = null,
         )
 
@@ -58,10 +58,12 @@ class InscripcionApiRepositoryTest {
     @Test
     fun `dado un 422 cuando se registra entonces traduce los codigos a errores de dominio`() =
         runTest {
-            val cuerpo = """{"errores":["correo_invalido","representante_requerido_para_menor","codigo_desconocido"]}"""
+            val cuerpo =
+                """{"errores":["correo_invalido","representante_requerido_para_menor","idioma_interes_no_disponible","codigo_desconocido"]}"""
             val repo = repositorio { respond(cuerpo, HttpStatusCode.UnprocessableEntity, cabecerasJson) }
 
-            val esperado = listOf(ErrorFicha.CorreoInvalido, ErrorFicha.RepresentanteRequeridoParaMenor)
+            val esperado =
+                listOf(ErrorFicha.CorreoInvalido, ErrorFicha.RepresentanteRequeridoParaMenor, ErrorFicha.IdiomaInteresNoDisponible)
             assertEquals(ResultadoRegistro.Rechazada(esperado), repo.registrar(ficha))
         }
 
@@ -107,5 +109,6 @@ class InscripcionApiRepositoryTest {
             val cuerpo = enviada.body.toByteArray().decodeToString()
             assertTrue(""""fechaNacimiento":"2000-05-10"""" in cuerpo)
             assertTrue(""""aceptaTratamientoDatos":true""" in cuerpo)
+            assertTrue(""""idiomaInteres":"en"""" in cuerpo)
         }
 }

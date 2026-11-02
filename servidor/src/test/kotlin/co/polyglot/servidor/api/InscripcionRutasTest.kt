@@ -1,5 +1,14 @@
 package co.polyglot.servidor.api
 
+import co.polyglot.catalogo.domain.Certificacion
+import co.polyglot.catalogo.domain.CodigoIdioma
+import co.polyglot.catalogo.domain.Idioma
+import co.polyglot.catalogo.domain.IdiomaRepository
+import co.polyglot.catalogo.domain.ListarIdiomas
+import co.polyglot.catalogo.domain.NivelMcer
+import co.polyglot.catalogo.domain.ObtenerIdioma
+import co.polyglot.catalogo.domain.ResultadoBusqueda
+import co.polyglot.catalogo.domain.ResultadoListado
 import co.polyglot.matricula.domain.EnviarFichaInscripcion
 import co.polyglot.matricula.domain.FichaInscripcion
 import co.polyglot.matricula.domain.InscripcionId
@@ -13,6 +22,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.server.application.Application
 import io.ktor.server.testing.testApplication
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
@@ -31,6 +41,22 @@ class InscripcionRutasTest {
         }
     }
 
+    private class CatalogoFalso(
+        var listado: ResultadoListado,
+    ) : IdiomaRepository {
+        override suspend fun listar(): ResultadoListado = listado
+
+        override suspend fun buscar(codigo: CodigoIdioma): ResultadoBusqueda =
+            (listado as? ResultadoListado.Exito)
+                ?.idiomas
+                ?.firstOrNull { it.codigo == codigo }
+                ?.let(ResultadoBusqueda::Encontrado)
+                ?: ResultadoBusqueda.NoEncontrado
+    }
+
+    private val ingles = Idioma(checkNotNull(CodigoIdioma.desde("en")), "English", NivelMcer.C2, listOf(Certificacion("IELTS")))
+    private val catalogo = CatalogoFalso(ResultadoListado.Exito(listOf(ingles)))
+
     private val relojFijo =
         object : Reloj {
             override fun hoy(): LocalDate = LocalDate(2026, 10, 30)
@@ -39,21 +65,34 @@ class InscripcionRutasTest {
     private val fichaAdulto =
         """
         {"nombres":"Ana","apellidos":"Prueba","correo":"ana@ejemplo.test","fechaNacimiento":"2000-05-10",
-         "idiomaInteres":"idioma-1","aceptaTratamientoDatos":true}
+         "idiomaInteres":"en","aceptaTratamientoDatos":true}
         """.trimIndent()
 
     private val fichaMenorSinRepresentante =
         """
         {"nombres":"Ana","apellidos":"Prueba","correo":"ana@ejemplo.test","fechaNacimiento":"2012-01-01",
-         "idiomaInteres":"idioma-1","aceptaTratamientoDatos":true}
+         "idiomaInteres":"en","aceptaTratamientoDatos":true}
         """.trimIndent()
+
+    private val fichaConIdiomaInexistente =
+        """
+        {"nombres":"Ana","apellidos":"Prueba","correo":"ana@ejemplo.test","fechaNacimiento":"2000-05-10",
+         "idiomaInteres":"zz","aceptaTratamientoDatos":true}
+        """.trimIndent()
+
+    private fun Application.conDependenciasDePrueba(repositorio: RepositorioFalso) =
+        moduloApi(
+            EnviarFichaInscripcion(repositorio, relojFijo, ObtenerIdioma(catalogo)),
+            ListarIdiomas(catalogo),
+            ObtenerIdioma(catalogo),
+        )
 
     private fun probar(
         repositorio: RepositorioFalso,
         cuerpo: String,
         verificar: suspend (HttpStatusCode, String) -> Unit,
     ) = testApplication {
-        application { moduloApi(EnviarFichaInscripcion(repositorio, relojFijo)) }
+        application { conDependenciasDePrueba(repositorio) }
         val respuesta =
             client.post("/api/v1/inscripciones") {
                 contentType(ContentType.Application.Json)
@@ -118,11 +157,68 @@ class InscripcionRutasTest {
     @Test
     fun `dado el servidor en marcha cuando se consulta la salud entonces responde ok`() =
         testApplication {
-            application { moduloApi(EnviarFichaInscripcion(RepositorioFalso { ResultadoRegistro.ErrorInesperado }, relojFijo)) }
+            application { conDependenciasDePrueba(RepositorioFalso { ResultadoRegistro.ErrorInesperado }) }
 
             val respuesta = client.get("/salud")
 
             assertEquals(HttpStatusCode.OK, respuesta.status)
             assertEquals("""{"estado":"ok"}""", respuesta.bodyAsText())
+        }
+
+    @Test
+    fun `dado un idioma que no esta en el catalogo cuando se envia la ficha entonces responde 422 y no guarda`() {
+        val repositorio = RepositorioFalso { ResultadoRegistro.ErrorInesperado }
+
+        probar(repositorio, fichaConIdiomaInexistente) { estado, cuerpo ->
+            assertEquals(HttpStatusCode.UnprocessableEntity, estado)
+            assertEquals("""{"errores":["idioma_interes_no_disponible"]}""", cuerpo)
+        }
+        assertEquals(0, repositorio.recibidas)
+    }
+
+    @Test
+    fun `dado un catalogo con idiomas cuando se listan entonces responde 200 con sus datos`() =
+        testApplication {
+            application { conDependenciasDePrueba(RepositorioFalso { ResultadoRegistro.ErrorInesperado }) }
+
+            val respuesta = client.get("/api/v1/idiomas")
+
+            assertEquals(HttpStatusCode.OK, respuesta.status)
+            assertEquals(
+                """[{"codigo":"en","nombre":"English","nivelMaximo":"C2","certificaciones":["IELTS"]}]""",
+                respuesta.bodyAsText(),
+            )
+        }
+
+    @Test
+    fun `dado un idioma del catalogo cuando se consulta por codigo entonces responde 200`() =
+        testApplication {
+            application { conDependenciasDePrueba(RepositorioFalso { ResultadoRegistro.ErrorInesperado }) }
+
+            val respuesta = client.get("/api/v1/idiomas/en")
+
+            assertEquals(HttpStatusCode.OK, respuesta.status)
+            assertEquals(
+                """{"codigo":"en","nombre":"English","nivelMaximo":"C2","certificaciones":["IELTS"]}""",
+                respuesta.bodyAsText(),
+            )
+        }
+
+    @Test
+    fun `dado un codigo inexistente o mal formado cuando se consulta entonces responde 404`() =
+        testApplication {
+            application { conDependenciasDePrueba(RepositorioFalso { ResultadoRegistro.ErrorInesperado }) }
+
+            assertEquals(HttpStatusCode.NotFound, client.get("/api/v1/idiomas/zz").status)
+            assertEquals(HttpStatusCode.NotFound, client.get("/api/v1/idiomas/ingles").status)
+        }
+
+    @Test
+    fun `dado que el catalogo falla cuando se listan los idiomas entonces responde 500`() =
+        testApplication {
+            catalogo.listado = ResultadoListado.ErrorInesperado
+            application { conDependenciasDePrueba(RepositorioFalso { ResultadoRegistro.ErrorInesperado }) }
+
+            assertEquals(HttpStatusCode.InternalServerError, client.get("/api/v1/idiomas").status)
         }
 }
